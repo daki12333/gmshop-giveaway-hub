@@ -69,38 +69,6 @@ export function GiveawayCard({ giveaway, onParticipantAdded }: GiveawayCardProps
           description: "Uspešno ste se prijavili za giveaway",
         });
 
-        // Send webhook notification
-        const webhookUrl = localStorage.getItem('gmshop-webhook-url');
-        if (webhookUrl) {
-          try {
-            await fetch('/functions/v1/send-webhook', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                webhookUrl: webhookUrl,
-                eventType: 'giveaway_participation',
-                data: {
-                  giveaway: {
-                    id: giveaway.id,
-                    title: giveaway.title,
-                    prize: giveaway.prize
-                  },
-                  participant: {
-                    telegram_username: telegramUsername.trim(),
-                    email: email.trim() || null
-                  },
-                  timestamp: new Date().toISOString()
-                }
-              })
-            });
-          } catch (webhookError) {
-            console.error('Webhook error:', webhookError);
-            // Don't show error to user as main action succeeded
-          }
-        }
-
         setIsDialogOpen(false);
         setTelegramUsername("");
         setEmail("");
