@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Gift, Users, Calendar, Trophy } from "lucide-react";
+import { Gift, Users, Calendar, Trophy, Share2, Check } from "lucide-react";
 
 interface Giveaway {
   id: string;
@@ -28,6 +28,7 @@ export function GiveawayCard({ giveaway, onParticipantAdded }: GiveawayCardProps
   const [telegramUsername, setTelegramUsername] = useState("");
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const { toast } = useToast();
 
   const handleParticipate = async (e: React.FormEvent) => {
@@ -86,6 +87,28 @@ export function GiveawayCard({ giveaway, onParticipantAdded }: GiveawayCardProps
     setIsSubmitting(false);
   };
 
+  const handleCopyLink = async () => {
+    const giveawayUrl = `${window.location.origin}?giveaway=${giveaway.id}`;
+    
+    try {
+      await navigator.clipboard.writeText(giveawayUrl);
+      setLinkCopied(true);
+      toast({
+        title: "Link kopiran!",
+        description: "Link za giveaway je kopiran u clipboard",
+      });
+      
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch (error) {
+      console.error("Error copying link:", error);
+      toast({
+        title: "Greška",
+        description: "Nije moguće kopirati link",
+        variant: "destructive",
+      });
+    }
+  };
+
   const isExpired = new Date(giveaway.end_date) < new Date();
   const daysLeft = Math.ceil((new Date(giveaway.end_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
 
@@ -130,60 +153,76 @@ export function GiveawayCard({ giveaway, onParticipantAdded }: GiveawayCardProps
             <p className="text-foreground">{giveaway.prize}</p>
           </div>
 
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button 
-                variant="default" 
-                size="lg" 
-                className="w-full bg-gradient-primary hover:shadow-glow-primary transition-all duration-300"
-                disabled={isExpired}
-              >
-                {isExpired ? "Giveaway završen" : "Prijavite se"}
-              </Button>
-            </DialogTrigger>
-            
-            <DialogContent className="border-0 bg-card/95 backdrop-blur-sm">
-              <DialogHeader>
-                <DialogTitle className="text-xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  Prijavite se za giveaway
-                </DialogTitle>
-              </DialogHeader>
-              
-              <form onSubmit={handleParticipate} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="telegram">Telegram Username *</Label>
-                  <Input
-                    id="telegram"
-                    placeholder="@username"
-                    value={telegramUsername}
-                    onChange={(e) => setTelegramUsername(e.target.value)}
-                    className="bg-secondary/50 border-border/50"
-                    required
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email (opciono)</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="email@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="bg-secondary/50 border-border/50"
-                  />
-                </div>
-                
+          <div className="flex gap-2">
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
                 <Button 
-                  type="submit" 
-                  className="w-full bg-gradient-primary hover:shadow-glow-primary"
-                  disabled={isSubmitting}
+                  variant="default" 
+                  size="lg" 
+                  className="flex-1 bg-gradient-primary hover:shadow-glow-primary transition-all duration-300"
+                  disabled={isExpired}
                 >
-                  {isSubmitting ? "Šalje se..." : "Prijavite se"}
+                  {isExpired ? "Giveaway završen" : "Prijavite se"}
                 </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              
+              <DialogContent className="border-0 bg-card/95 backdrop-blur-sm">
+                <DialogHeader>
+                  <DialogTitle className="text-xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    Prijavite se za giveaway
+                  </DialogTitle>
+                </DialogHeader>
+                
+                <form onSubmit={handleParticipate} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="telegram">Telegram Username *</Label>
+                    <Input
+                      id="telegram"
+                      placeholder="@username"
+                      value={telegramUsername}
+                      onChange={(e) => setTelegramUsername(e.target.value)}
+                      className="bg-secondary/50 border-border/50"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email (opciono)</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="email@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="bg-secondary/50 border-border/50"
+                    />
+                  </div>
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-gradient-primary hover:shadow-glow-primary"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Šalje se..." : "Prijavite se"}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+            
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={handleCopyLink}
+              className="px-4"
+              title="Kopiraj link"
+            >
+              {linkCopied ? (
+                <Check className="h-4 w-4 text-green-500" />
+              ) : (
+                <Share2 className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
         </CardContent>
       </div>
     </Card>
