@@ -59,27 +59,6 @@ export function HeroSection() {
             Pridružite se našoj zajednici i budite deo uzbudljivih takmičenja.
           </p>
 
-          {/* Stats */}
-          <div className="flex flex-wrap justify-center gap-8 py-8">
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                100+
-              </div>
-              <div className="text-muted-foreground">Aktivnih giveaway-ja</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold bg-gradient-secondary bg-clip-text text-transparent">
-                50K+
-              </div>
-              <div className="text-muted-foreground">Učesnika</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                $10K+
-              </div>
-              <div className="text-muted-foreground">Vrednost nagrada</div>
-            </div>
-          </div>
 
           {/* CTA Button */}
           <div className="pt-4">
